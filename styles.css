@@ -1,0 +1,361 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #f4f5f3;
+  --panel: #ffffff;
+  --border: #e0e1dc;
+  --ink: #1b211f;
+  --ink-soft: #565f5b;
+  --accent: #0e7c66;
+  --accent-soft: #e4f3ee;
+  --amber: #b8790f;
+  --amber-soft: #fbf0dc;
+  --red: #b3261e;
+  --red-soft: #fbe8e6;
+  --radius: 10px;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.brand {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.brand-mark {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+  font-size: 13.5px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.field {
+  margin-bottom: 14px;
+}
+
+.field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--ink-soft);
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  background: #fff;
+  color: var(--ink);
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: 8px 0 0;
+}
+
+.btn-primary,
+.btn-ghost {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 18px;
+}
+
+.btn-primary:disabled {
+  background: #c9cdc9;
+  cursor: not-allowed;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0b6552;
+}
+
+.btn-large {
+  width: 100%;
+  padding: 13px;
+  font-size: 15px;
+  margin-top: 16px;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+}
+
+.btn-ghost:hover {
+  border-color: var(--ink-soft);
+  color: var(--ink);
+}
+
+.dropzone {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.dropzone:hover,
+.dropzone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dropzone-icon {
+  display: inline-block;
+  font-size: 20px;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.dropzone p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+.file-name {
+  font-family: var(--font-mono);
+  color: var(--ink);
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.direction-field {
+  margin-top: 18px;
+}
+
+.progress-area {
+  margin-top: 18px;
+}
+
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  font-family: var(--font-mono);
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--accent-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+.result-area {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.result-area.success {
+  background: var(--accent-soft);
+  border: 1px solid #bfe3d7;
+}
+.result-area.error {
+  background: var(--red-soft);
+  border: 1px solid #f0c6c2;
+}
+
+.result-title {
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.result-detail {
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  margin: 2px 0;
+}
+
+.result-area .btn-primary {
+  margin-top: 10px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.history h2 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  margin: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+th {
+  text-align: left;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+td.file-cell {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+td.count-cell {
+  font-family: var(--font-mono);
+  color: var(--ink-soft);
+}
+td.empty {
+  text-align: center;
+  color: var(--ink-soft);
+  padding: 20px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.badge-pending {
+  background: #eceeec;
+  color: var(--ink-soft);
+}
+.badge-processing {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+.badge-done {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.badge-failed {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+@media (max-width: 560px) {
+  .topbar {
+    flex-direction: column;
+  }
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    font-size: 12px;
+  }
+}

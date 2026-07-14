@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conversor Parquet ↔ CSV</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">⇄</span>
+          <div>
+            <h1>Conversor de dados</h1>
+            <p class="subtitle">Parquet ↔ CSV, sem limite prático de tamanho</p>
+          </div>
+        </div>
+      </header>
+
+      <main class="panel converter">
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="file-input" accept=".parquet,.csv" hidden />
+          <div class="dropzone-content">
+            <span class="dropzone-icon">↑</span>
+            <p>
+              <strong>Clique</strong> ou arraste um arquivo .parquet ou .csv
+            </p>
+            <p id="file-name" class="file-name"></p>
+          </div>
+        </div>
+
+        <div class="field direction-field">
+          <label for="direction">Direção da conversão</label>
+          <select id="direction">
+            <option value="parquet_to_csv">Parquet → CSV</option>
+            <option value="csv_to_parquet">CSV → Parquet</option>
+          </select>
+        </div>
+
+        <button
+          id="convert-btn"
+          class="btn-primary btn-large"
+          type="button"
+          disabled
+        >
+          Converter
+        </button>
+
+        <div id="progress-area" class="progress-area hidden">
+          <div class="progress-row">
+            <span id="progress-label">Enviando arquivo…</span>
+            <span id="progress-pct">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+        </div>
+
+        <div id="result-area" class="result-area hidden"></div>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
