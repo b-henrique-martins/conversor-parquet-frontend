@@ -18,28 +18,7 @@
         </div>
       </header>
 
-      <nav class="tabs" role="tablist">
-        <button
-          class="tab-btn active"
-          id="tab-convert"
-          type="button"
-          role="tab"
-          aria-selected="true"
-        >
-          Converter
-        </button>
-        <button
-          class="tab-btn"
-          id="tab-view"
-          type="button"
-          role="tab"
-          aria-selected="false"
-        >
-          Visualizar
-        </button>
-      </nav>
-
-      <main class="panel section" id="section-convert">
+      <main class="panel converter">
         <div class="dropzone" id="dropzone">
           <input type="file" id="file-input" accept=".parquet,.csv" hidden />
           <div class="dropzone-content">
@@ -79,45 +58,6 @@
         </div>
 
         <div id="result-area" class="result-area hidden"></div>
-      </main>
-
-      <main class="panel section hidden" id="section-view">
-        <div class="dropzone" id="view-dropzone">
-          <input
-            type="file"
-            id="view-file-input"
-            accept=".parquet,.csv"
-            hidden
-          />
-          <div class="dropzone-content">
-            <span class="dropzone-icon">👁</span>
-            <p>
-              <strong>Clique</strong> ou arraste um arquivo .parquet ou .csv
-            </p>
-            <p id="view-file-name" class="file-name"></p>
-          </div>
-        </div>
-
-        <button
-          id="view-btn"
-          class="btn-primary btn-large"
-          type="button"
-          disabled
-        >
-          Visualizar
-        </button>
-
-        <div id="view-progress-area" class="progress-area hidden">
-          <div class="progress-row">
-            <span id="view-progress-label">Enviando arquivo…</span>
-            <span id="view-progress-pct">0%</span>
-          </div>
-          <div class="progress-bar">
-            <div id="view-progress-fill" class="progress-fill"></div>
-          </div>
-        </div>
-
-        <div id="view-result" class="preview-inline hidden"></div>
       </main>
     </div>
 
