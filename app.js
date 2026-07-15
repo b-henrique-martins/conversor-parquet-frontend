@@ -26,6 +26,24 @@ let selectedFile = null;
 let pollTimer = null;
 
 // ---------------------------------------------------------------------
+// Controle do estado visual do botão de converter (spinner + texto)
+// ---------------------------------------------------------------------
+const CONVERT_BTN_DEFAULT_LABEL = els.convertBtn.textContent; // "Converter"
+
+function setConvertButtonLoading(loading) {
+  if (loading) {
+    els.convertBtn.disabled = true;
+    els.convertBtn.classList.add("is-loading");
+    els.convertBtn.innerHTML =
+      '<span class="btn-spinner" aria-hidden="true"></span><span>Convertendo…</span>';
+  } else {
+    els.convertBtn.classList.remove("is-loading");
+    els.convertBtn.textContent = CONVERT_BTN_DEFAULT_LABEL;
+    els.convertBtn.disabled = !selectedFile;
+  }
+}
+
+// ---------------------------------------------------------------------
 // "Acorda" o backend assim que a página carrega. Em planos free/starter
 // do Render, o serviço hiberna depois de um tempo sem tráfego -- sem
 // isso, a PRIMEIRA ação real do usuário (presign) é que pagaria o custo
@@ -84,7 +102,7 @@ els.convertBtn.addEventListener("click", async () => {
   if (!selectedFile) return;
 
   stopPolling();
-  els.convertBtn.disabled = true;
+  setConvertButtonLoading(true);
   els.resultArea.classList.add("hidden");
   els.progressArea.classList.remove("hidden");
   setProgress("Preparando envio…", 0);
@@ -117,7 +135,7 @@ els.convertBtn.addEventListener("click", async () => {
     pollJob(job_id);
   } catch (err) {
     showError(err.message || "Falha inesperada ao converter o arquivo.");
-    els.convertBtn.disabled = false;
+    setConvertButtonLoading(false);
     els.progressArea.classList.add("hidden");
   }
 });
@@ -137,7 +155,7 @@ function pollJob(jobId, interval = POLL_INTERVAL_MS) {
         els.progressFill.classList.remove("indeterminate");
         els.progressArea.classList.add("hidden");
         showSuccess(job);
-        els.convertBtn.disabled = false;
+        setConvertButtonLoading(false);
         return;
       }
 
@@ -146,7 +164,7 @@ function pollJob(jobId, interval = POLL_INTERVAL_MS) {
         els.progressFill.classList.remove("indeterminate");
         els.progressArea.classList.add("hidden");
         showError(job.error || "Falha durante a conversão.");
-        els.convertBtn.disabled = false;
+        setConvertButtonLoading(false);
         return;
       }
 
@@ -159,7 +177,7 @@ function pollJob(jobId, interval = POLL_INTERVAL_MS) {
       showError(
         "Perdemos a conexão com o status da conversão. Tente novamente.",
       );
-      els.convertBtn.disabled = false;
+      setConvertButtonLoading(false);
     }
   }, interval);
 }
