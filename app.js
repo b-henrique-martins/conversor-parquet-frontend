@@ -20,6 +20,21 @@ const els = {
   progressPct: document.getElementById("progress-pct"),
   progressFill: document.getElementById("progress-fill"),
   resultArea: document.getElementById("result-area"),
+
+  tabConvert: document.getElementById("tab-convert"),
+  tabView: document.getElementById("tab-view"),
+  sectionConvert: document.getElementById("section-convert"),
+  sectionView: document.getElementById("section-view"),
+
+  viewDropzone: document.getElementById("view-dropzone"),
+  viewFileInput: document.getElementById("view-file-input"),
+  viewFileName: document.getElementById("view-file-name"),
+  viewBtn: document.getElementById("view-btn"),
+  viewProgressArea: document.getElementById("view-progress-area"),
+  viewProgressLabel: document.getElementById("view-progress-label"),
+  viewProgressPct: document.getElementById("view-progress-pct"),
+  viewProgressFill: document.getElementById("view-progress-fill"),
+  viewResult: document.getElementById("view-result"),
 };
 
 let selectedFile = null;
@@ -60,7 +75,25 @@ function wakeServer() {
 wakeServer();
 
 // ---------------------------------------------------------------------
-// Seleção de arquivo (clique ou drag-and-drop)
+// Abas: Converter / Visualizar
+// ---------------------------------------------------------------------
+els.tabConvert.addEventListener("click", () => switchTab("convert"));
+els.tabView.addEventListener("click", () => switchTab("view"));
+
+function switchTab(tab) {
+  const isConvert = tab === "convert";
+
+  els.tabConvert.classList.toggle("active", isConvert);
+  els.tabView.classList.toggle("active", !isConvert);
+  els.tabConvert.setAttribute("aria-selected", String(isConvert));
+  els.tabView.setAttribute("aria-selected", String(!isConvert));
+
+  els.sectionConvert.classList.toggle("hidden", !isConvert);
+  els.sectionView.classList.toggle("hidden", isConvert);
+}
+
+// ---------------------------------------------------------------------
+// Seleção de arquivo (clique ou drag-and-drop) -- aba Converter
 // ---------------------------------------------------------------------
 els.dropzone.addEventListener("click", () => els.fileInput.click());
 
@@ -105,7 +138,7 @@ els.convertBtn.addEventListener("click", async () => {
   setConvertButtonLoading(true);
   els.resultArea.classList.add("hidden");
   els.progressArea.classList.remove("hidden");
-  setProgress("Preparando envio…", 0);
+  setProgress(els, "Preparando envio…", 0);
 
   try {
     const presign = await apiCall("/api/uploads/presign", "POST", {
@@ -113,12 +146,12 @@ els.convertBtn.addEventListener("click", async () => {
       content_type: selectedFile.type || "application/octet-stream",
     });
 
-    setProgress("Enviando arquivo…", 0);
+    setProgress(els, "Enviando arquivo…", 0);
     await uploadWithProgress(presign.upload_url, selectedFile, (pct) => {
-      setProgress("Enviando arquivo…", pct);
+      setProgress(els, "Enviando arquivo…", pct);
     });
 
-    setProgress("Iniciando conversão…", 100);
+    setProgress(els, "Iniciando conversão…", 100);
 
     const { job_id } = await apiCall("/api/convert", "POST", {
       input_key: presign.object_key,
@@ -127,6 +160,7 @@ els.convertBtn.addEventListener("click", async () => {
     });
 
     setProgress(
+      els,
       "Convertendo… isso pode levar alguns minutos em arquivos grandes",
       100,
     );
@@ -189,27 +223,6 @@ function stopPolling() {
   }
 }
 
-function uploadWithProgress(url, file, onProgress) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("PUT", url);
-    xhr.setRequestHeader(
-      "Content-Type",
-      file.type || "application/octet-stream",
-    );
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable)
-        onProgress(Math.round((e.loaded / e.total) * 100));
-    };
-    xhr.onload = () =>
-      xhr.status >= 200 && xhr.status < 300
-        ? resolve()
-        : reject(new Error("Falha no upload para o storage."));
-    xhr.onerror = () => reject(new Error("Erro de rede durante o upload."));
-    xhr.send(file);
-  });
-}
-
 function showSuccess(job) {
   els.resultArea.className = "result-area success";
   els.resultArea.innerHTML = `
@@ -231,15 +244,185 @@ function showError(message) {
   els.resultArea.classList.remove("hidden");
 }
 
-function setProgress(label, pct) {
-  els.progressLabel.textContent = label;
-  els.progressPct.textContent = `${pct}%`;
-  els.progressFill.style.width = `${pct}%`;
+// ---------------------------------------------------------------------
+// Aba Visualizar: upload -> preview -> apaga o objeto do bucket na hora.
+// Fluxo independente do de conversão -- não cria job, não passa por
+// /api/convert.
+// ---------------------------------------------------------------------
+let selectedViewFile = null;
+
+const VIEW_BTN_DEFAULT_LABEL = els.viewBtn.textContent; // "Visualizar"
+
+function setViewButtonLoading(loading) {
+  if (loading) {
+    els.viewBtn.disabled = true;
+    els.viewBtn.classList.add("is-loading");
+    els.viewBtn.innerHTML =
+      '<span class="btn-spinner" aria-hidden="true"></span><span>Carregando…</span>';
+  } else {
+    els.viewBtn.classList.remove("is-loading");
+    els.viewBtn.textContent = VIEW_BTN_DEFAULT_LABEL;
+    els.viewBtn.disabled = !selectedViewFile;
+  }
+}
+
+els.viewDropzone.addEventListener("click", () => els.viewFileInput.click());
+
+els.viewDropzone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  els.viewDropzone.classList.add("drag-over");
+});
+
+els.viewDropzone.addEventListener("dragleave", () =>
+  els.viewDropzone.classList.remove("drag-over"),
+);
+
+els.viewDropzone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  els.viewDropzone.classList.remove("drag-over");
+  if (e.dataTransfer.files.length) handleViewFileSelected(e.dataTransfer.files[0]);
+});
+
+els.viewFileInput.addEventListener("change", () => {
+  if (els.viewFileInput.files.length) handleViewFileSelected(els.viewFileInput.files[0]);
+});
+
+function handleViewFileSelected(file) {
+  selectedViewFile = file;
+  els.viewFileName.textContent = `${file.name}  (${formatBytes(file.size)})`;
+  els.viewBtn.disabled = false;
+}
+
+els.viewBtn.addEventListener("click", async () => {
+  if (!selectedViewFile) return;
+
+  setViewButtonLoading(true);
+  els.viewResult.classList.add("hidden");
+  els.viewProgressArea.classList.remove("hidden");
+  setProgress(
+    {
+      progressLabel: els.viewProgressLabel,
+      progressPct: els.viewProgressPct,
+      progressFill: els.viewProgressFill,
+    },
+    "Enviando arquivo…",
+    0,
+  );
+
+  let objectKey = null;
+
+  try {
+    const presign = await apiCall("/api/uploads/presign", "POST", {
+      filename: selectedViewFile.name,
+      content_type: selectedViewFile.type || "application/octet-stream",
+    });
+    objectKey = presign.object_key;
+
+    await uploadWithProgress(presign.upload_url, selectedViewFile, (pct) => {
+      setProgress(
+        {
+          progressLabel: els.viewProgressLabel,
+          progressPct: els.viewProgressPct,
+          progressFill: els.viewProgressFill,
+        },
+        "Enviando arquivo…",
+        pct,
+      );
+    });
+
+    setProgress(
+      {
+        progressLabel: els.viewProgressLabel,
+        progressPct: els.viewProgressPct,
+        progressFill: els.viewProgressFill,
+      },
+      "Gerando visualização…",
+      100,
+    );
+
+    const data = await apiCall("/api/preview", "POST", {
+      object_key: objectKey,
+      limit: 100,
+    });
+
+    els.viewProgressArea.classList.add("hidden");
+    renderViewResult(data);
+  } catch (err) {
+    els.viewProgressArea.classList.add("hidden");
+    els.viewResult.className = "preview-inline";
+    els.viewResult.innerHTML = `<div class="preview-error">${escapeHtml(err.message || "Falha ao gerar a visualização.")}</div>`;
+    els.viewResult.classList.remove("hidden");
+  } finally {
+    // arquivo enviado só serve pra esse preview -- some do bucket na hora,
+    // não precisa esperar a limpeza de órfãos (6h).
+    if (objectKey) {
+      apiCall("/api/uploads/delete", "POST", { object_key: objectKey }).catch(() => {});
+    }
+    setViewButtonLoading(false);
+  }
+});
+
+function renderViewResult(data) {
+  const totalLabel =
+    data.row_count_total != null
+      ? `${data.row_count_total} linhas no total`
+      : "total de linhas não calculado (arquivo grande)";
+
+  const truncatedNote = data.truncated_columns
+    ? " · algumas colunas foram omitidas nesta visualização"
+    : "";
+
+  const headerHtml = data.columns.map((c) => `<th>${escapeHtml(c)}</th>`).join("");
+  const rowsHtml = data.rows
+    .map(
+      (row) =>
+        `<tr>${row.map((v) => `<td>${v == null ? "" : escapeHtml(String(v))}</td>`).join("")}</tr>`,
+    )
+    .join("");
+
+  els.viewResult.className = "preview-inline";
+  els.viewResult.innerHTML = `
+    <p class="preview-meta">mostrando ${data.row_count_returned} linhas · ${totalLabel}${truncatedNote}</p>
+    <div class="preview-table-wrap">
+      <table>
+        <thead><tr>${headerHtml}</tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>
+  `;
+  els.viewResult.classList.remove("hidden");
 }
 
 // ---------------------------------------------------------------------
-// Utilitários
+// Utilitários compartilhados pelas duas abas
 // ---------------------------------------------------------------------
+function uploadWithProgress(url, file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", url);
+    xhr.setRequestHeader(
+      "Content-Type",
+      file.type || "application/octet-stream",
+    );
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable)
+        onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () =>
+      xhr.status >= 200 && xhr.status < 300
+        ? resolve()
+        : reject(new Error("Falha no upload para o storage."));
+    xhr.onerror = () => reject(new Error("Erro de rede durante o upload."));
+    xhr.send(file);
+  });
+}
+
+function setProgress(target, label, pct) {
+  target.progressLabel.textContent = label;
+  target.progressPct.textContent = `${pct}%`;
+  target.progressFill.style.width = `${pct}%`;
+}
+
 async function apiCall(path, method, body) {
   const res = await fetch(API_URL + path, {
     method,
